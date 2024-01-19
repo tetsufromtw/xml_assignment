@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "xml_validator.hpp"
 
+
 bool XMLValidator::DeterminXml(const std::string& xmlContent) {
     try {
         while (!elementStack.empty()) {
@@ -15,6 +16,13 @@ bool XMLValidator::DeterminXml(const std::string& xmlContent) {
     }
 }
 
+
+/* 
+ * Parses the given XML string by splitting it into tags.
+ * - Extracts tags from '<' to '>', throws an exception for empty tags.
+ * - Ignores self-closing tags like `<br/>`.
+ * - Calls `HandleStartElement` for start tags and `HandleEndElement` for end tags.
+*/
 void XMLValidator::ParseXmlString(const std::string& xmlContent) {
     std::istringstream stream(xmlContent);
     std::string token;
@@ -24,26 +32,25 @@ void XMLValidator::ParseXmlString(const std::string& xmlContent) {
         if (start != std::string::npos) {
             token = token.substr(start + 1);
         }
-        if (token.empty()) {
-            throw std::runtime_error("Empty element.");
-        }
+        if (token.empty()) throw std::runtime_error("Empty element.");
 
-        if (IsStartElement(token)) {
-            HandleStartElement(token);
-        } else if (IsEndElement(token)) {
-            HandleEndElement(token);
+        if (IsSelfClosingTag(token)) continue;
+
+        if (IsStartTag(token)) {
+            HandleStartElement(GetElement(token));
+        } else if (IsEndTag(token)) {
+            HandleEndElement(GetElement(token));
         }
     }
 }
 
-void XMLValidator::HandleStartElement(const std::string& element) {
-    std::string startElement = GetElement(element);
+
+void XMLValidator::HandleStartElement(const std::string& startElement) {
     elementStack.push(startElement);
 }
 
-void XMLValidator::HandleEndElement(const std::string& element) {
-    std::string endElement = GetElement(element);
 
+void XMLValidator::HandleEndElement(const std::string& endElement) {
     if (!elementStack.empty() && elementStack.top() == endElement) {
         elementStack.pop();
     } else {
@@ -52,18 +59,34 @@ void XMLValidator::HandleEndElement(const std::string& element) {
 
 }
 
-std::string XMLValidator::GetElement(const std::string& element) {
-    bool isEndTag = element.size() > 1 && element[0] == '/';
+
+/*
+ * Extracts and returns the element's name from a given XML tag.
+ * Removes start/end tag markers from the tag string.
+ * Examples:
+ *  - "<Name>" becomes "Name"
+ *  - "<Name page=1>" becomes "Name page=1"
+ *  - "</Name>" becomes "Name"
+*/
+std::string XMLValidator::GetElement(const std::string& token) {
+    bool isEndTag = token.size() > 1 && token[0] == '/';
     size_t startPos = isEndTag ? 1 : 0;
-    size_t endPos = element.find('>', startPos);
-    return element.substr(startPos, endPos - startPos);
+    size_t endPos = token.find('>', startPos);
+    return token.substr(startPos, endPos - startPos);
 }
 
-bool XMLValidator::IsStartElement(const std::string& element) {
-    return !element.empty() && element[0] != '/';
+
+bool XMLValidator::IsSelfClosingTag(const std::string& token) {
+    return !token.empty() && token[token.length() - 1] == '/';
 }
 
-bool XMLValidator::IsEndElement(const std::string& element) {
-    return !element.empty() && element[0] == '/';
+
+bool XMLValidator::IsStartTag(const std::string& token) {
+    return !token.empty() && token[0] != '/';
+}
+
+
+bool XMLValidator::IsEndTag(const std::string& token) {
+    return !token.empty() && token[0] == '/';
 }
 
