@@ -1,0 +1,8 @@
+<Design><Code>hello world</Code></Design>
+<Design><Code>hello world</Code></Design><People>
+<People><Design><Code>hello world</People></Code></Design>
+<People age="1">hello world</People>
+<Design><Code>hello world</Code><Debug>No bugs</Debug></Design>
+<Design><Code>hello world</Code></Design><People>No People</People>
+<Design><Code>hello world</Code></Design></People>
+<Design><Code>hello world</Code></Design><br/>
