@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
             std::cout << std::endl;
             std::cout  << "Output: " 
                       << std::boolalpha << xmlValidator.DeterminXml(line) << std::endl;
+            std::cout << std::endl;
             std::cout << "Input: ";
         }
     }

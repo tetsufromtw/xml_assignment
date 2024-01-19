@@ -24,7 +24,9 @@ void XMLValidator::ParseXmlString(const std::string& xmlContent) {
         if (start != std::string::npos) {
             token = token.substr(start + 1);
         }
-        if (token.empty()) continue;
+        if (token.empty()) {
+            throw std::runtime_error("Empty element.");
+        }
 
         if (IsStartElement(token)) {
             HandleStartElement(token);
